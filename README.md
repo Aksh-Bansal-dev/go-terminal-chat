@@ -1,5 +1,5 @@
 # Terminal-Chat
-A simple terminal chat app built using Golang.
+A simple multithreaded terminal chat app built using Golang.
 
 > Note: This app uses no external golang package
 
