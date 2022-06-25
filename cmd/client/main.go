@@ -11,6 +11,7 @@ import (
 	"time"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/emoji"
 	"github.com/gorilla/websocket"
 )
 
@@ -140,13 +141,15 @@ func sendAnnouncement(content string, writeMessage func(messageType int, data []
 }
 
 func printMsg(msg Message) {
+	content := emoji.ParseText(msg.Content)
+	time := color.Grey(msg.Time)
 	if msg.Content == "" {
 		return
 	} else if msg.Username == "" {
-		fmt.Printf("%s %s\n", color.Grey(msg.Time), msg.Content)
+		fmt.Printf("%s %s\n", time, content)
 	} else if msg.Username == *username {
-		fmt.Printf("%s %s: %s\n", color.Grey(msg.Time), color.CustomWithBg(msg.Username, msg.Color), msg.Content)
+		fmt.Printf("%s %s: %s\n", time, color.CustomWithBg(msg.Username, msg.Color), content)
 	} else {
-		fmt.Printf("%s %s: %s\n", color.Grey(msg.Time), color.Custom(msg.Username, msg.Color), msg.Content)
+		fmt.Printf("%s %s: %s\n", time, color.Custom(msg.Username, msg.Color), content)
 	}
 }
