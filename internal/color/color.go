@@ -13,6 +13,9 @@ func Grey(s string) string {
 func Custom(s string, color string) string {
 	return color + s + "\x1b[0m"
 }
+func CustomWithBg(s string, color string) string {
+	return "\x1b[48;5;239m" + color + s + "\x1b[0m"
+}
 
 func Random() string {
 	rand.Seed(time.Now().UnixNano())

@@ -10,8 +10,3 @@ A simple multithreaded terminal chat app built using Golang.
 ## How it works?
 
 It uses websockets for server-client communication. The server broadcasts all messages.
-
-## Todo
-
-- colors
-- tui
