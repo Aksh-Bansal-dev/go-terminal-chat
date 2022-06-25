@@ -85,7 +85,6 @@ func main() {
 	go func() {
 		defer close(input)
 		for {
-			// printMsg(newMessage("", *username))
 			text, err := reader.ReadString('\n')
 			if err != nil {
 				continue
@@ -141,12 +140,12 @@ func sendAnnouncement(content string, writeMessage func(messageType int, data []
 }
 
 func printMsg(msg Message) {
-	if msg.Username == "" {
+	if msg.Content == "" {
+		return
+	} else if msg.Username == "" {
 		fmt.Printf("%s %s\n", color.Grey(msg.Time), msg.Content)
 	} else if msg.Username == *username {
 		fmt.Printf("%s %s: %s\n", color.Grey(msg.Time), color.CustomWithBg(msg.Username, msg.Color), msg.Content)
-	} else if msg.Username == *username && msg.Content == "" {
-		fmt.Printf("%s %s: %s ", color.Grey(msg.Time), color.CustomWithBg(msg.Username, msg.Color), msg.Content)
 	} else {
 		fmt.Printf("%s %s: %s\n", color.Grey(msg.Time), color.Custom(msg.Username, msg.Color), msg.Content)
 	}
