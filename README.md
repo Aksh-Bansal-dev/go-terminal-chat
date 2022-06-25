@@ -2,7 +2,7 @@
 ![Screenshot from 2022-06-26 00-07-55](https://user-images.githubusercontent.com/63552235/175786432-8eda8517-0630-4394-ab43-587f499e67b2.png)
 
 
-A simple multithreaded terminal chat app built using Golang.
+A terminal chat app built using Golang.
 
 ## How to use?
 
