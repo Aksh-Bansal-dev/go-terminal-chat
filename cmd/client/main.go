@@ -2,83 +2,99 @@ package main
 
 import (
 	"bufio"
-	"bytes"
 	"encoding/json"
 	"flag"
 	"fmt"
-	"net/http"
+	"net/url"
 	"os"
-	"sync"
+	"os/signal"
 	"time"
+
+	"github.com/gorilla/websocket"
 )
 
 var addr = flag.String("addr", "localhost:8080", "http service address")
 var username = flag.String("user", "Newbie", "username for chat")
 
 type Message struct {
-	Name    string
-	Content string
+	Username string
+	Content  string
+	Time     string
 }
-
-var idx int
-var m sync.Mutex
 
 func main() {
 	flag.Parse()
-	idx = 0
-	newMsg := Message{
-		Name:    *username,
-		Content: fmt.Sprintf("%s joined the chat!", *username),
-	}
-	postBody, _ := json.Marshal(newMsg)
-	initialBody := bytes.NewBuffer(postBody)
-	_, err := http.Post(fmt.Sprintf("http://%s/sendMsg", *addr), "application/json", initialBody)
+
+	interrupt := make(chan os.Signal, 1)
+	signal.Notify(interrupt, os.Interrupt)
+	reader := bufio.NewReader(os.Stdin)
+	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws"}
+
+	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
 	if err != nil {
 		panic(err)
 	}
-	go sendMsg()
-	go recvMsg()
-	select {}
-}
+	defer c.Close()
 
-func recvMsg() {
-	for {
-		m.Lock()
-		res, err := http.Get(fmt.Sprintf("http://%s/getMsg?idx=%d", *addr, idx))
-		if err != nil {
-			panic(err)
+	done := make(chan struct{})
+	input := make(chan string)
+
+	// Read messages
+	go func() {
+		defer close(done)
+		for {
+			_, message, err := c.ReadMessage()
+			var msg Message
+			err = json.Unmarshal(message, &msg)
+			if err != nil {
+				fmt.Println("err")
+				return
+			}
+			fmt.Printf("%s %s: %s\n", msg.Time, msg.Username, msg.Content)
 		}
-		var allMsg []Message
-		err2 := json.NewDecoder(res.Body).Decode(&allMsg)
-		if err2 != nil {
+	}()
+
+	// Take input from STDIN
+	go func() {
+		defer close(input)
+		for {
+			text, err := reader.ReadString('\n')
+			if err != nil {
+				continue
+			}
+			input <- text
+		}
+	}()
+
+	// Send to message server
+	for {
+		select {
+		case <-done:
 			return
-		}
-		idx += len(allMsg)
-		for i := 0; i < len(allMsg); i++ {
-			fmt.Println(allMsg[i].Content)
-		}
-		m.Unlock()
-		time.Sleep(time.Second)
-	}
-}
+		case <-interrupt:
+			fmt.Println("interrupt")
 
-func sendMsg() {
-	for {
-		reader := bufio.NewReader(os.Stdin)
-		text, _ := reader.ReadString('\n')
-
-		newMsg := Message{
-			Name:    *username,
-			Content: fmt.Sprintf("[%s] %s", *username, text[:len(text)-1]),
-		}
-		postBody, _ := json.Marshal(newMsg)
-		body := bytes.NewBuffer(postBody)
-		m.Lock()
-		_, err := http.Post(fmt.Sprintf("http://%s/sendMsg", *addr), "application/json", body)
-		idx++
-		m.Unlock()
-		if err != nil {
-			panic(err)
+			// Cleanly close the connection by sending a close message and then
+			// waiting (with timeout) for the server to close the connection.
+			err := c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
+			if err != nil {
+				fmt.Println("write close:", err)
+				return
+			}
+			os.Exit(0)
+		case text := <-input:
+			t := time.Now()
+			newMsg := Message{
+				Username: *username,
+				Content:  text[:len(text)-1],
+				Time:     fmt.Sprintf("%d:%d:%d", t.Hour(), t.Minute(), t.Second()),
+			}
+			postBody, _ := json.Marshal(newMsg)
+			err := c.WriteMessage(websocket.TextMessage, []byte(postBody))
+			if err != nil {
+				fmt.Println("write:", err)
+				return
+			}
 		}
 	}
 }
