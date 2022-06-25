@@ -10,6 +10,7 @@ import (
 	"os/signal"
 	"time"
 
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
 	"github.com/gorilla/websocket"
 )
 
@@ -20,10 +21,15 @@ type Message struct {
 	Username string
 	Content  string
 	Time     string
+	Color    string
 }
+
+var myColor string
 
 func main() {
 	flag.Parse()
+
+	myColor = color.Random()
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
@@ -50,7 +56,7 @@ func main() {
 				fmt.Println("err")
 				return
 			}
-			fmt.Printf("%s %s: %s\n", msg.Time, msg.Username, msg.Content)
+			fmt.Printf("%s %s: %s\n", color.Grey(msg.Time), color.Custom(msg.Username, msg.Color), msg.Content)
 		}
 	}()
 
@@ -88,6 +94,7 @@ func main() {
 				Username: *username,
 				Content:  text[:len(text)-1],
 				Time:     fmt.Sprintf("%d:%d:%d", t.Hour(), t.Minute(), t.Second()),
+				Color:    myColor,
 			}
 			postBody, _ := json.Marshal(newMsg)
 			err := c.WriteMessage(websocket.TextMessage, []byte(postBody))
