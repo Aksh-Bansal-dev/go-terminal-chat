@@ -9,6 +9,8 @@ A terminal chat app built using Golang. It also supports emojis 😎.
 - Start the server using `go run cmd/server/main.go [-addr]`
 - Start the client using `go run cmd/client/main.go [-addr] [-user]`
 
+Don't have golang installed? Download the executables from [here](https://github.com/Aksh-Bansal-dev/go-terminal-chat/releases/tag/v1.0.0).
+
 ## How it works?
 
 It uses websockets for server-client communication. The server broadcasts all messages.
