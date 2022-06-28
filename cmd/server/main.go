@@ -18,6 +18,9 @@ func main() {
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(hub, w, r)
 	})
+	http.HandleFunc("/members/ws", func(w http.ResponseWriter, r *http.Request) {
+		websocket.ServeWs(hub, w, r)
+	})
 	log.Println(fmt.Sprintf("Server started at %s", *addr))
 	log.Fatal(http.ListenAndServe(*addr, nil))
 }
