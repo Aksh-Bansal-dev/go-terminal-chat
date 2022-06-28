@@ -8,34 +8,19 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
-	"time"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/emoji"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
 	"github.com/gorilla/websocket"
 )
 
-var addr = flag.String("addr", "localhost:8080", "http service address")
-var username = flag.String("user", "Newbie", "username for chat")
-
-type Message struct {
-	Username string
-	Content  string
-	Time     string
-	Color    string
-}
-
-func newMessage(content string, customUserName string) Message {
-	t := time.Now()
-	return Message{
-		Username: customUserName,
-		Content:  content,
-		Color:    myColor,
-		Time:     fmt.Sprintf("%d:%d:%d", t.Hour(), t.Minute(), t.Second()),
-	}
-}
-
-var myColor string
+var (
+	addr     = flag.String("addr", "localhost:8080", "http service address")
+	username = flag.String("user", "Newbie", "username for chat")
+	tuiMode  = flag.Bool("tui", false, "Use this app in tui mode")
+	myColor  int
+)
 
 func main() {
 	flag.Parse()
@@ -48,7 +33,7 @@ func main() {
 
 	interrupt := make(chan os.Signal, 1)
 	signal.Notify(interrupt, os.Interrupt)
-	reader := bufio.NewReader(os.Stdin)
+
 	u := url.URL{Scheme: "ws", Host: *addr, Path: "/ws"}
 
 	c, _, err := websocket.DefaultDialer.Dial(u.String(), nil)
@@ -57,6 +42,13 @@ func main() {
 	}
 	defer c.Close()
 
+	done := make(chan struct{})
+	input := make(chan string)
+
+	if *tuiMode {
+		go tui.Run(*username, &input)
+	}
+
 	// Welcome message
 	err = sendAnnouncement(*username+" joined the chat!", c.WriteMessage)
 	if err != nil {
@@ -64,37 +56,46 @@ func main() {
 		return
 	}
 
-	done := make(chan struct{})
-	input := make(chan string)
-
 	// Read messages
 	go func() {
 		defer close(done)
 		for {
 			_, message, err := c.ReadMessage()
-			var msg Message
-			err = json.Unmarshal(message, &msg)
 			if err != nil {
-				fmt.Println("err")
+				fmt.Println("websocket error: ", err)
 				return
 			}
-			printMsg(msg)
+			var msg tui.Message
+			err = json.Unmarshal(message, &msg)
+			if err != nil {
+				fmt.Println("Parsing error:", err)
+				return
+			}
+			if *tuiMode {
+				tui.PrintMessage(msg)
+			} else {
+				printMsg(msg)
+			}
 		}
 	}()
 
-	// Take input from STDIN
-	go func() {
-		defer close(input)
-		for {
-			text, err := reader.ReadString('\n')
-			if err != nil {
-				continue
+	if !*tuiMode {
+		reader := bufio.NewReader(os.Stdin)
+		// Take input from STDIN
+		go func() {
+			defer close(input)
+			for {
+				text, err := reader.ReadString('\n')
+				if err != nil {
+					continue
+				}
+				input <- text
 			}
-			input <- text
-		}
-	}()
+		}()
+	}
 
 	// Send to message server
+	defer close(input)
 	for {
 		select {
 		case <-done:
@@ -116,7 +117,10 @@ func main() {
 			}
 			os.Exit(0)
 		case text := <-input:
-			err := sendMsg(text[:len(text)-1], c.WriteMessage)
+			if text[len(text)-1] == '\n' {
+				text = text[:len(text)-1]
+			}
+			err := sendMsg(text, c.WriteMessage)
 			if err != nil {
 				fmt.Println("write:", err)
 				return
@@ -126,21 +130,20 @@ func main() {
 }
 
 func sendMsg(content string, writeMessage func(messageType int, data []byte) error) error {
-	newMsg := newMessage(content, *username)
+	newMsg := tui.NewMessage(content, *username, myColor)
 	postBody, _ := json.Marshal(newMsg)
 	err := writeMessage(websocket.TextMessage, []byte(postBody))
 	return err
 }
 
 func sendAnnouncement(content string, writeMessage func(messageType int, data []byte) error) error {
-	newMsg := newMessage(content, "")
-
+	newMsg := tui.NewMessage(content, "", myColor)
 	postBody, _ := json.Marshal(newMsg)
 	err := writeMessage(websocket.TextMessage, []byte(postBody))
 	return err
 }
 
-func printMsg(msg Message) {
+func printMsg(msg tui.Message) {
 	content := emoji.ParseText(msg.Content)
 	time := color.Grey(msg.Time)
 	if msg.Content == "" {

@@ -10,14 +10,15 @@ func Grey(s string) string {
 	return "\x1b[38;5;243m" + s + "\x1b[0m"
 }
 
-func Custom(s string, color string) string {
-	return color + s + "\x1b[0m"
+func Custom(s string, color int) string {
+	return fmt.Sprintf("\x1b[38;5;%dm", color) + s + "\x1b[0m"
 }
-func CustomWithBg(s string, color string) string {
-	return "\x1b[48;5;239m" + color + s + "\x1b[0m"
+func CustomWithBg(s string, color int) string {
+	return "\x1b[48;5;239m" + fmt.Sprintf("\x1b[38;5;%dm", color) + s + "\x1b[0m"
 }
 
-func Random() string {
+func Random() int {
 	rand.Seed(time.Now().UnixNano())
-	return fmt.Sprintf("\x1b[38;5;%dm", rand.Intn(228)+1)
+
+	return rand.Intn(228) + 1
 }
