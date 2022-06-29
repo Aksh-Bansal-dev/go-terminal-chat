@@ -3,8 +3,8 @@ package user
 import (
 	"encoding/json"
 	"errors"
-	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"net/url"
 	"strings"
@@ -18,14 +18,14 @@ func GetInitialUsers(serverAddr string) {
 	u := url.URL{Scheme: "http", Host: serverAddr, Path: "/online-users"}
 	res, err := http.Get(u.String())
 	if err != nil {
-		fmt.Println("error: GetInitialUsers couldn't fetch data")
+		log.Println("error: GetInitialUsers couldn't fetch data")
 		panic(0)
 	}
 	var data []string
 	body, err := ioutil.ReadAll(res.Body)
 	err = json.Unmarshal(body, &data)
 	if err != nil {
-		fmt.Println("error: GetInitialUsers couldn't parse data")
+		log.Println("error: GetInitialUsers couldn't parse data")
 		panic(0)
 	}
 	Users = make(chan string, 100)

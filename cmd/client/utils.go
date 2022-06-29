@@ -4,6 +4,7 @@ import (
 	"bufio"
 	"encoding/json"
 	"fmt"
+	"log"
 	"os"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
@@ -56,18 +57,18 @@ func sendMessageToServer(done <-chan struct{}, interrupt <-chan os.Signal, input
 		case <-done:
 			return
 		case <-interrupt:
-			fmt.Println("interrupt")
+			log.Println("interrupt")
 
 			err := sendAnnouncement(*username, "left", c.WriteMessage)
 			if err != nil {
-				fmt.Println("err:", err)
+				log.Println("err:", err)
 				return
 			}
 			// Cleanly close the connection by sending a close message and then
 			// waiting (with timeout) for the server to close the connection.
 			err = c.WriteMessage(websocket.CloseMessage, websocket.FormatCloseMessage(websocket.CloseNormalClosure, ""))
 			if err != nil {
-				fmt.Println("write close:", err)
+				log.Println("write close:", err)
 				return
 			}
 			os.Exit(0)
@@ -77,7 +78,7 @@ func sendMessageToServer(done <-chan struct{}, interrupt <-chan os.Signal, input
 			}
 			err := sendMsg(text, c.WriteMessage)
 			if err != nil {
-				fmt.Println("write:", err)
+				log.Println("write:", err)
 				return
 			}
 		}
@@ -100,13 +101,13 @@ func readMessageFromServer(done chan struct{}, c websocket.Conn) {
 	for {
 		_, message, err := c.ReadMessage()
 		if err != nil {
-			fmt.Println("websocket error: ", err)
+			log.Println("websocket error: ", err)
 			return
 		}
 		var msg tui.Message
 		err = json.Unmarshal(message, &msg)
 		if err != nil {
-			fmt.Println("Parsing error:", err)
+			log.Println("Parsing error:", err)
 			return
 		}
 		if msg.Username[0] == ' ' {

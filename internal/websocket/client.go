@@ -73,7 +73,6 @@ func (c *Client) readPump() {
 		err = json.Unmarshal(message, &msg)
 		if msg.Username[0] == ' ' {
 			c.Username = msg.Username[2:]
-			log.Println(c.Username)
 		}
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {

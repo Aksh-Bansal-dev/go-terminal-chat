@@ -3,7 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
-	"fmt"
+	"log"
 	"net/url"
 	"os"
 	"os/signal"
@@ -23,8 +23,9 @@ var (
 
 func main() {
 	flag.Parse()
+	log.SetFlags(log.Lshortfile)
 	if err := user.IsValidUsername(*username); err != nil {
-		fmt.Println(err)
+		log.Println(err)
 		return
 	}
 
@@ -52,7 +53,7 @@ func main() {
 	// Welcome message
 	err = sendAnnouncement(*username, "joined", c.WriteMessage)
 	if err != nil {
-		fmt.Println("err:", err)
+		log.Println("err:", err)
 		return
 	}
 
