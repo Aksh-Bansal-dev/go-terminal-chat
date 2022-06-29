@@ -2,10 +2,12 @@ package websocket
 
 import (
 	"bytes"
+	"encoding/json"
 	"log"
 	"net/http"
 	"time"
 
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
 	"github.com/gorilla/websocket"
 )
 
@@ -42,6 +44,8 @@ type Client struct {
 
 	// Buffered channel of outbound messages.
 	send chan []byte
+
+	Username string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -59,6 +63,18 @@ func (c *Client) readPump() {
 	c.conn.SetPongHandler(func(string) error { c.conn.SetReadDeadline(time.Now().Add(pongWait)); return nil })
 	for {
 		_, message, err := c.conn.ReadMessage()
+		if err != nil {
+			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
+				log.Println(err)
+			}
+			break
+		}
+		var msg tui.Message
+		err = json.Unmarshal(message, &msg)
+		if msg.Username[0] == ' ' {
+			c.Username = msg.Username[2:]
+			log.Println(c.Username)
+		}
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
 				log.Println(err)

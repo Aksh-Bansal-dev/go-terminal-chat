@@ -27,9 +27,17 @@ func printMsg(msg tui.Message) {
 	}
 }
 
-func sendAnnouncement(username string, announcementType string, writeMessage func(messageType int, data []byte) error) error {
-	s := username + " " + announcementType
-	newMsg := tui.NewMessage(s+" the chat!", s, myColor)
+func sendAnnouncement(
+	username string,
+	announcementType string,
+	writeMessage func(messageType int, data []byte) error,
+) error {
+	var newMsg tui.Message
+	if announcementType == "joined" {
+		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " y"+username, myColor)
+	} else if announcementType == "left" {
+		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " x"+username, myColor)
+	}
 	postBody, _ := json.Marshal(newMsg)
 	err := writeMessage(websocket.TextMessage, []byte(postBody))
 	return err
@@ -100,6 +108,13 @@ func readMessageFromServer(done chan struct{}, c websocket.Conn) {
 		if err != nil {
 			fmt.Println("Parsing error:", err)
 			return
+		}
+		if msg.Username[0] == ' ' {
+			if msg.Username[1] == 'x' {
+				user.RemoveUser(msg.Username[2:])
+			} else if msg.Username[1] == 'y' {
+				user.AddUser(msg.Username[2:])
+			}
 		}
 		if *tuiMode {
 			tui.PrintMessage(msg)

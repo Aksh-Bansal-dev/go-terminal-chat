@@ -24,21 +24,19 @@ var (
 	input      chan string
 	messageBox *tui.Box
 	UI         tui.UI
+	sidebar    *tui.Box
 )
 
 func Run(usrname string, inp *chan string) {
 	username = usrname
 	input = *inp
 
-	sidebar := tui.NewVBox(
-		tui.NewLabel("  	Members  	"),
-		tui.NewLabel("you"),
-		tui.NewLabel("to"),
-		tui.NewLabel("do"),
-		tui.NewLabel("later"),
+	sidebar = tui.NewVBox(
+		tui.NewLabel("  	Online  	"),
 		tui.NewSpacer(),
 	)
 	sidebar.SetBorder(true)
+	go UpdateSidebar()
 
 	messageBox = tui.NewVBox()
 
@@ -88,7 +86,6 @@ func Run(usrname string, inp *chan string) {
 		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 
 	})
-
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
 	}
@@ -127,5 +124,29 @@ func NewMessage(content string, customUserName string, color int) Message {
 		Content:  content,
 		Color:    color,
 		Time:     fmt.Sprintf("%d:%d:%d", t.Hour(), t.Minute(), t.Second()),
+	}
+}
+
+func UpdateSidebar() {
+	defer close(user.Users)
+	userMap := map[string]bool{}
+	for {
+		select {
+		case user := <-user.Users:
+			for range userMap {
+				sidebar.Remove(1)
+			}
+			if user[0] == ' ' {
+				delete(userMap, user[1:])
+			} else {
+				userMap[user] = true
+			}
+			for key := range userMap {
+				sidebar.Insert(1, tui.NewLabel(key))
+			}
+			if UI != nil {
+				UI.Update(func() {})
+			}
+		}
 	}
 }

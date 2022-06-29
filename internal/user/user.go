@@ -1,9 +1,40 @@
 package user
 
 import (
+	"encoding/json"
 	"errors"
+	"fmt"
+	"io/ioutil"
+	"net/http"
+	"net/url"
 	"strings"
 )
+
+var (
+	Users chan string
+)
+
+func GetInitialUsers(serverAddr string) {
+	u := url.URL{Scheme: "http", Host: serverAddr, Path: "/online-users"}
+	res, err := http.Get(u.String())
+	if err != nil {
+		fmt.Println("error: GetInitialUsers couldn't fetch data")
+		panic(0)
+	}
+	var data []string
+	body, err := ioutil.ReadAll(res.Body)
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		fmt.Println("error: GetInitialUsers couldn't parse data")
+		panic(0)
+	}
+	Users = make(chan string, 100)
+	for _, user := range data {
+		if user != "" {
+			Users <- user
+		}
+	}
+}
 
 func IsValidUsername(username string) error {
 	if username == "" {
@@ -15,4 +46,12 @@ func IsValidUsername(username string) error {
 	} else {
 		return errors.New("username must not contain any space")
 	}
+}
+
+func AddUser(username string) {
+	Users <- username
+}
+
+func RemoveUser(username string) {
+	Users <- " " + username
 }

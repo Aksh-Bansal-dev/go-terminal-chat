@@ -41,6 +41,7 @@ func main() {
 	}
 	defer c.Close()
 
+	user.GetInitialUsers(*addr)
 	done := make(chan struct{})
 	input := make(chan string)
 
