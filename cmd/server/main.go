@@ -67,7 +67,6 @@ func main() {
 				w.Write([]byte(jsonRes))
 				return
 			}
-			log.Println(client, data["username"])
 		}
 		res := map[string]bool{"valid": true}
 		jsonRes, _ := json.Marshal(res)
