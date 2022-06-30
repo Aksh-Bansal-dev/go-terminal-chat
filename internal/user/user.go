@@ -10,8 +10,13 @@ import (
 	"strings"
 )
 
+type OnlineUser struct {
+	Username string `json:"username"`
+	Color    int    `json:"color"`
+}
+
 var (
-	Users chan string
+	Users chan OnlineUser
 )
 
 func GetInitialUsers(serverAddr string) {
@@ -21,16 +26,16 @@ func GetInitialUsers(serverAddr string) {
 		log.Println("error: GetInitialUsers couldn't fetch data")
 		panic(0)
 	}
-	var data []string
+	var data []OnlineUser
 	body, err := ioutil.ReadAll(res.Body)
 	err = json.Unmarshal(body, &data)
 	if err != nil {
 		log.Println("error: GetInitialUsers couldn't parse data")
 		panic(0)
 	}
-	Users = make(chan string, 100)
+	Users = make(chan OnlineUser, 100)
 	for _, user := range data {
-		if user != "" {
+		if user.Username != "" {
 			Users <- user
 		}
 	}
@@ -48,10 +53,11 @@ func IsValidUsername(username string) error {
 	}
 }
 
-func AddUser(username string) {
-	Users <- username
+func AddUser(newUser OnlineUser) {
+	Users <- newUser
 }
 
-func RemoveUser(username string) {
-	Users <- " " + username
+func RemoveUser(staleUser OnlineUser) {
+	staleUser.Username = " " + staleUser.Username
+	Users <- staleUser
 }

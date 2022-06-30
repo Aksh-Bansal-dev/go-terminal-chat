@@ -129,20 +129,26 @@ func NewMessage(content string, customUserName string, color int) Message {
 
 func UpdateSidebar() {
 	defer close(user.Users)
-	userMap := map[string]bool{}
+	userMap := map[string]int{}
 	for {
 		select {
 		case user := <-user.Users:
 			for range userMap {
 				sidebar.Remove(1)
 			}
-			if user[0] == ' ' {
-				delete(userMap, user[1:])
+			if user.Username[0] == ' ' {
+				delete(userMap, user.Username[1:])
 			} else {
-				userMap[user] = true
+				userMap[user.Username] = user.Color
 			}
-			for key := range userMap {
-				sidebar.Insert(1, tui.NewLabel(key))
+			for key, color := range userMap {
+				userLabel := tui.NewLabel(key)
+				if key == username {
+					userLabel.SetStyleName(fmt.Sprintf("wb-color%d", color))
+				} else {
+					userLabel.SetStyleName(fmt.Sprintf("color%d", color))
+				}
+				sidebar.Insert(1, userLabel)
 			}
 			if UI != nil {
 				UI.Update(func() {})

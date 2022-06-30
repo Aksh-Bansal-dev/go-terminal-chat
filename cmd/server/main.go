@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/websocket"
 )
 
@@ -25,11 +26,17 @@ func main() {
 			http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
 		}
 		w.Header().Set("Content-Type", "application/json")
-		onlineClients := []string{}
+		onlineUsers := []user.OnlineUser{}
 		for client := range hub.Clients {
-			onlineClients = append(onlineClients, (*client).Username)
+			onlineUsers = append(
+				onlineUsers,
+				user.OnlineUser{
+					Username: (*client).Username,
+					Color:    (*client).Color,
+				},
+			)
 		}
-		rawData, err := json.Marshal(onlineClients)
+		rawData, err := json.Marshal(onlineUsers)
 		if err != nil {
 			log.Println(err)
 		}

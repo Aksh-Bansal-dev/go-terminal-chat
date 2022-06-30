@@ -112,9 +112,15 @@ func readMessageFromServer(done chan struct{}, c websocket.Conn) {
 		}
 		if msg.Username[0] == ' ' {
 			if msg.Username[1] == 'x' {
-				user.RemoveUser(msg.Username[2:])
+				user.RemoveUser(user.OnlineUser{
+					Username: msg.Username[2:],
+					Color:    msg.Color,
+				})
 			} else if msg.Username[1] == 'y' {
-				user.AddUser(msg.Username[2:])
+				user.AddUser(user.OnlineUser{
+					Username: msg.Username[2:],
+					Color:    msg.Color,
+				})
 			}
 		}
 		if *tuiMode {

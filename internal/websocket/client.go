@@ -46,6 +46,7 @@ type Client struct {
 	send chan []byte
 
 	Username string
+	Color    int
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -73,6 +74,7 @@ func (c *Client) readPump() {
 		err = json.Unmarshal(message, &msg)
 		if msg.Username[0] == ' ' {
 			c.Username = msg.Username[2:]
+			c.Color = msg.Color
 		}
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {
