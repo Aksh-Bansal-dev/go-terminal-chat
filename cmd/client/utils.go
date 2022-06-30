@@ -19,7 +19,7 @@ func printMsg(msg tui.Message) {
 	time := color.Grey(msg.Time)
 	if msg.Content == "" {
 		return
-	} else if err := user.IsValidUsername(msg.Username); err != nil {
+	} else if err := user.IsValidUsername(msg.Username, ""); err != nil {
 		fmt.Printf("%s %s\n", time, content)
 	} else if msg.Username == *username {
 		fmt.Printf("%s %s: %s\n", time, color.CustomWithBg(msg.Username, msg.Color), content)

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"flag"
 	"fmt"
+	"io/ioutil"
 	"log"
 	"net/http"
 
@@ -24,6 +25,7 @@ func main() {
 	http.HandleFunc("/online-users", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "GET" {
 			http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+			return
 		}
 		w.Header().Set("Content-Type", "application/json")
 		onlineUsers := []user.OnlineUser{}
@@ -36,11 +38,40 @@ func main() {
 				},
 			)
 		}
-		rawData, err := json.Marshal(onlineUsers)
+		jsonRes, err := json.Marshal(onlineUsers)
 		if err != nil {
 			log.Println(err)
 		}
-		w.Write(rawData)
+		w.Write(jsonRes)
+	})
+	// new htttp endpoint to check if username is present in clients
+	http.HandleFunc("/valid-username", func(w http.ResponseWriter, r *http.Request) {
+		if r.Method != "POST" {
+			http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		body, err := ioutil.ReadAll(r.Body)
+		if err != nil {
+			http.Error(w, "Cannot parse request body", http.StatusBadRequest)
+		}
+		var data map[string]string
+		err = json.Unmarshal(body, &data)
+		if err != nil {
+			http.Error(w, "Cannot parse request body", http.StatusBadRequest)
+		}
+		for client := range hub.Clients {
+			if client.Username == data["username"] {
+				res := map[string]bool{"valid": false}
+				jsonRes, _ := json.Marshal(res)
+				w.Write([]byte(jsonRes))
+				return
+			}
+			log.Println(client, data["username"])
+		}
+		res := map[string]bool{"valid": true}
+		jsonRes, _ := json.Marshal(res)
+		w.Write([]byte(jsonRes))
 	})
 	log.Println(fmt.Sprintf("Server started at %s", *addr))
 	log.Fatal(http.ListenAndServe(*addr, nil))

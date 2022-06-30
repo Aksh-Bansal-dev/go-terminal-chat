@@ -3,6 +3,7 @@ package main
 import (
 	"bufio"
 	"flag"
+	"fmt"
 	"log"
 	"net/url"
 	"os"
@@ -24,8 +25,8 @@ var (
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Lshortfile)
-	if err := user.IsValidUsername(*username); err != nil {
-		log.Println(err)
+	if err := user.IsValidUsername(*username, *addr); err != nil {
+		fmt.Println(err)
 		return
 	}
 

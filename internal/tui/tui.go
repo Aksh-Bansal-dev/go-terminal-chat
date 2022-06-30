@@ -96,7 +96,7 @@ func PrintMessage(msg Message) {
 	tim.SetStyleName("time")
 
 	name := tui.NewLabel(msg.Username)
-	if err := user.IsValidUsername(msg.Username); err != nil {
+	if err := user.IsValidUsername(msg.Username, ""); err != nil {
 		name.SetText("")
 	} else if msg.Username == username {
 		name.SetStyleName(fmt.Sprintf("wb-color%d", msg.Color))
