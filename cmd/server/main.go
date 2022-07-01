@@ -27,6 +27,7 @@ func main() {
 			http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
 			return
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/json")
 		onlineUsers := []user.OnlineUser{}
 		for client := range hub.Clients {
@@ -44,12 +45,12 @@ func main() {
 		}
 		w.Write(jsonRes)
 	})
-	// new htttp endpoint to check if username is present in clients
 	http.HandleFunc("/valid-username", func(w http.ResponseWriter, r *http.Request) {
 		if r.Method != "POST" {
 			http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
 			return
 		}
+		w.Header().Set("Access-Control-Allow-Origin", "*")
 		w.Header().Set("Content-Type", "application/json")
 		body, err := ioutil.ReadAll(r.Body)
 		if err != nil {
