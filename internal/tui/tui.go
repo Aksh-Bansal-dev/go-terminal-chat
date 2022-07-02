@@ -6,7 +6,7 @@ import (
 	"syscall"
 	"time"
 
-	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/emoji"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/textParser"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/marcusolsson/tui-go"
 )
@@ -104,7 +104,7 @@ func PrintMessage(msg Message) {
 		name.SetStyleName(fmt.Sprintf("color%d", msg.Color))
 	}
 
-	content := tui.NewLabel(emoji.ParseText(msg.Content))
+	content := tui.NewLabel(textParser.Parse(msg.Content))
 
 	messageBox.Append(tui.NewHBox(
 		tim,

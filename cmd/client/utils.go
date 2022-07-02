@@ -8,14 +8,14 @@ import (
 	"os"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
-	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/emoji"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/textParser"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/gorilla/websocket"
 )
 
 func printMsg(msg tui.Message) {
-	content := emoji.ParseText(msg.Content)
+	content := textParser.Parse(msg.Content)
 	time := color.Grey(msg.Time)
 	if msg.Content == "" {
 		return
