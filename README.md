@@ -1,5 +1,7 @@
 # Terminal-Chat
 
+An awesome terminal chat application built using Golang.
+
 ### TUI mode
 
 ![Screenshot from 2022-06-30 22-34-22](https://user-images.githubusercontent.com/63552235/176736275-298b4876-5bec-4ff6-9f9f-55270be0cdd7.png)
@@ -7,8 +9,6 @@
 ### CLI mode
 
 ![Screenshot from 2022-06-30 22-34-58](https://user-images.githubusercontent.com/63552235/176736282-9c9b18db-dd8a-4423-8b2e-62b53822972a.png)
-
-An awesome terminal chat application built using Golang😎.
 
 > Web client coming soon.
 
