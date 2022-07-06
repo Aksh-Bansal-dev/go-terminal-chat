@@ -1,5 +1,11 @@
 package websocket
 
+import (
+	"encoding/json"
+
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
+)
+
 // Hub maintains the set of active clients and broadcasts messages to the
 // clients.
 type Hub struct {
@@ -36,12 +42,16 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
+			var msg tui.Message
+			_ = json.Unmarshal(message, &msg)
 			for client := range h.Clients {
-				select {
-				case client.send <- message:
-				default:
-					close(client.send)
-					delete(h.Clients, client)
+				if msg.To == "" || msg.To == client.Username || msg.Username == client.Username {
+					select {
+					case client.send <- message:
+					default:
+						close(client.send)
+						delete(h.Clients, client)
+					}
 				}
 			}
 		}

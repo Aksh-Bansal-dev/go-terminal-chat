@@ -6,6 +6,7 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"strings"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/textParser"
@@ -15,6 +16,14 @@ import (
 )
 
 func printMsg(msg tui.Message) {
+	nameContent := msg.Username
+	if msg.To != "" {
+		if msg.Username == *username {
+			nameContent = nameContent + "(" + msg.To + ")"
+		} else {
+			nameContent = nameContent + "(private)"
+		}
+	}
 	content := textParser.Parse(msg.Content)
 	time := color.Grey(msg.Time)
 	if msg.Content == "" {
@@ -22,9 +31,9 @@ func printMsg(msg tui.Message) {
 	} else if err := user.IsValidUsername(msg.Username, ""); err != nil {
 		fmt.Printf("%s %s\n", time, content)
 	} else if msg.Username == *username {
-		fmt.Printf("%s %s: %s\n", time, color.CustomWithBg(msg.Username, msg.Color), content)
+		fmt.Printf("%s %s: %s\n", time, color.CustomWithBg(nameContent, msg.Color), content)
 	} else {
-		fmt.Printf("%s %s: %s\n", time, color.Custom(msg.Username, msg.Color), content)
+		fmt.Printf("%s %s: %s\n", time, color.Custom(nameContent, msg.Color), content)
 	}
 }
 
@@ -46,6 +55,9 @@ func sendAnnouncement(
 
 func sendMsg(content string, writeMessage func(messageType int, data []byte) error) error {
 	newMsg := tui.NewMessage(content, *username, myColor)
+	to, actualContent := inputParser(content)
+	newMsg.To = to
+	newMsg.Content = actualContent
 	postBody, _ := json.Marshal(newMsg)
 	err := writeMessage(websocket.TextMessage, []byte(postBody))
 	return err
@@ -129,4 +141,12 @@ func readMessageFromServer(done chan struct{}, c websocket.Conn) {
 			printMsg(msg)
 		}
 	}
+}
+
+func inputParser(content string) (string, string) {
+	if len(content) > 2 && content[0] == '>' {
+		arr := strings.Split(content, " ")
+		return arr[0][1:], strings.Join(arr[1:], " ")
+	}
+	return "", content
 }

@@ -16,6 +16,7 @@ type Message struct {
 	Content  string
 	Time     string
 	Color    int
+	To       string
 }
 
 var (
@@ -95,7 +96,15 @@ func PrintMessage(msg Message) {
 	tim := tui.NewLabel(msg.Time)
 	tim.SetStyleName("time")
 
-	name := tui.NewLabel(msg.Username)
+	nameContent := msg.Username
+	if msg.To != "" {
+		if msg.Username == username {
+			nameContent = nameContent + "(" + msg.To + ")"
+		} else {
+			nameContent = nameContent + "(private)"
+		}
+	}
+	name := tui.NewLabel(nameContent)
 	if err := user.IsValidUsername(msg.Username, ""); err != nil {
 		name.SetText("")
 	} else if msg.Username == username {
@@ -124,6 +133,7 @@ func NewMessage(content string, customUserName string, color int) Message {
 		Content:  content,
 		Color:    color,
 		Time:     fmt.Sprintf("%d:%d:%d", t.Hour(), t.Minute(), t.Second()),
+		To:       "",
 	}
 }
 
