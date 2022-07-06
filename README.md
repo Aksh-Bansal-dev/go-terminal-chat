@@ -19,6 +19,9 @@ An awesome terminal chat application built using Golang😎.
 
 Don't have golang installed? Download the executables from [here](https://github.com/Aksh-Bansal-dev/go-terminal-chat/releases/tag/v1.0.0).
 
+- Use `:<emoji-code>:` to send emoji.
+- Use `>username <msg>` to send a private message to username.
+
 ## How it works?
 
 It uses websockets for server-client communication. The server broadcasts all messages.
