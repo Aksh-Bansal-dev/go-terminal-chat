@@ -48,7 +48,14 @@ func main() {
 	input := make(chan string)
 
 	if *tuiMode {
-		go tui.Run(*username, &input)
+		go tui.Run(*username, &input, *addr)
+		for _, msg := range user.GetChat(*addr) {
+			tui.PrintMessage(msg)
+		}
+	} else {
+		for _, msg := range user.GetChat(*addr) {
+			printMsg(msg)
+		}
 	}
 
 	// Welcome message

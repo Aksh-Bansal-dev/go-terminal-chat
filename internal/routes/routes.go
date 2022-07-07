@@ -6,8 +6,10 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/websocket"
+	"gorm.io/gorm"
 )
 
 func OnlineUserHandler(w http.ResponseWriter, r *http.Request, hub *websocket.Hub) {
@@ -59,5 +61,20 @@ func ValidUsernameHandler(w http.ResponseWriter, r *http.Request, hub *websocket
 	}
 	res := map[string]bool{"valid": true}
 	jsonRes, _ := json.Marshal(res)
+	w.Write([]byte(jsonRes))
+}
+
+func ChatHandler(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
+	if r.Method != "GET" {
+		http.Error(w, "Method not supported", http.StatusMethodNotAllowed)
+		return
+	}
+	w.Header().Set("Access-Control-Allow-Origin", "*")
+	w.Header().Set("Content-Type", "application/json")
+
+	var chat []database.Message
+	db.Find(&chat)
+
+	jsonRes, _ := json.Marshal(chat)
 	w.Write([]byte(jsonRes))
 }

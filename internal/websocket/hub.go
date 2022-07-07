@@ -3,7 +3,8 @@ package websocket
 import (
 	"encoding/json"
 
-	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
+	"gorm.io/gorm"
 )
 
 // Hub maintains the set of active clients and broadcasts messages to the
@@ -31,7 +32,7 @@ func NewHub() *Hub {
 	}
 }
 
-func (h *Hub) Run() {
+func (h *Hub) Run(db *gorm.DB) {
 	for {
 		select {
 		case client := <-h.register:
@@ -42,8 +43,9 @@ func (h *Hub) Run() {
 				close(client.send)
 			}
 		case message := <-h.broadcast:
-			var msg tui.Message
+			var msg database.Message
 			_ = json.Unmarshal(message, &msg)
+			db.Create(&msg)
 			for client := range h.Clients {
 				if msg.To == "" || msg.To == client.Username || msg.Username == client.Username {
 					select {

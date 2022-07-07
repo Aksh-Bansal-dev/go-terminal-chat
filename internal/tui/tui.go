@@ -6,21 +6,14 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/textParser"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/marcusolsson/tui-go"
 )
 
-type Message struct {
-	Username string
-	Content  string
-	Time     string
-	Color    int
-	To       string
-}
-
 var (
-	messages   = []Message{}
+	messages   = []database.Message{}
 	username   string
 	input      chan string
 	messageBox *tui.Box
@@ -28,7 +21,7 @@ var (
 	sidebar    *tui.Box
 )
 
-func Run(usrname string, inp *chan string) {
+func Run(usrname string, inp *chan string, serverAddr string) {
 	username = usrname
 	input = *inp
 
@@ -87,12 +80,13 @@ func Run(usrname string, inp *chan string) {
 		syscall.Kill(syscall.Getpid(), syscall.SIGINT)
 
 	})
+
 	if err := ui.Run(); err != nil {
 		log.Fatal(err)
 	}
 }
 
-func PrintMessage(msg Message) {
+func PrintMessage(msg database.Message) {
 	tim := tui.NewLabel(msg.Time)
 	tim.SetStyleName("time")
 
@@ -126,9 +120,9 @@ func PrintMessage(msg Message) {
 	}
 }
 
-func NewMessage(content string, customUserName string, color int) Message {
+func NewMessage(content string, customUserName string, color int) database.Message {
 	t := time.Now()
-	return Message{
+	return database.Message{
 		Username: customUserName,
 		Content:  content,
 		Color:    color,

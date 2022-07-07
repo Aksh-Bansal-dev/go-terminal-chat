@@ -9,6 +9,8 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 )
 
 type OnlineUser struct {
@@ -72,6 +74,23 @@ func IsValidUsername(username string, serverAddr string) error {
 	} else {
 		return errors.New("username already taken!")
 	}
+}
+
+func GetChat(serverAddr string) []database.Message {
+	u := url.URL{Scheme: "http", Host: serverAddr, Path: "/chat"}
+	res, err := http.Get(u.String())
+	if err != nil {
+		log.Println("error: isValidUsername couldn't fetch data")
+		panic(0)
+	}
+	var data []database.Message
+	body, err := ioutil.ReadAll(res.Body)
+	err = json.Unmarshal(body, &data)
+	if err != nil {
+		log.Println(err)
+		panic(0)
+	}
+	return data
 }
 
 func AddUser(newUser OnlineUser) {

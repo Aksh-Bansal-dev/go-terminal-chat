@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/routes"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/websocket"
 )
@@ -16,9 +17,13 @@ func main() {
 	flag.Parse()
 	log.SetFlags(log.Lshortfile)
 	hub := websocket.NewHub()
-	go hub.Run()
+	db := database.NewDB()
+	go hub.Run(db)
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(hub, w, r)
+	})
+	http.HandleFunc("/chat", func(w http.ResponseWriter, r *http.Request) {
+		routes.ChatHandler(w, r, db)
 	})
 	http.HandleFunc("/online-users", func(w http.ResponseWriter, r *http.Request) {
 		routes.OnlineUserHandler(w, r, hub)

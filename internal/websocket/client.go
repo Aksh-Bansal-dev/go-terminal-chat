@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"time"
 
-	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 	"github.com/gorilla/websocket"
 )
 
@@ -70,7 +70,7 @@ func (c *Client) readPump() {
 			}
 			break
 		}
-		var msg tui.Message
+		var msg database.Message
 		err = json.Unmarshal(message, &msg)
 		if msg.Username[0] == ' ' {
 			c.Username = msg.Username[2:]

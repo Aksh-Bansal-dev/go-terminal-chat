@@ -9,13 +9,14 @@ import (
 	"strings"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
+	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/textParser"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/gorilla/websocket"
 )
 
-func printMsg(msg tui.Message) {
+func printMsg(msg database.Message) {
 	nameContent := msg.Username
 	if msg.To != "" {
 		if msg.Username == *username {
@@ -42,7 +43,7 @@ func sendAnnouncement(
 	announcementType string,
 	writeMessage func(messageType int, data []byte) error,
 ) error {
-	var newMsg tui.Message
+	var newMsg database.Message
 	if announcementType == "joined" {
 		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " y"+username, myColor)
 	} else if announcementType == "left" {
@@ -116,7 +117,7 @@ func readMessageFromServer(done chan struct{}, c websocket.Conn) {
 			log.Println("websocket error: ", err)
 			return
 		}
-		var msg tui.Message
+		var msg database.Message
 		err = json.Unmarshal(message, &msg)
 		if err != nil {
 			log.Println("Parsing error:", err)
