@@ -10,8 +10,6 @@ An awesome terminal chat application built using Golang.
 
 ![Screenshot from 2022-06-30 22-34-58](https://user-images.githubusercontent.com/63552235/176736282-9c9b18db-dd8a-4423-8b2e-62b53822972a.png)
 
-> Web client coming soon.
-
 ## How to use?
 
 - Start the server using `go run cmd/server/main.go [-addr]`
