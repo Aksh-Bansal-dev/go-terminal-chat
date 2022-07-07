@@ -24,7 +24,7 @@ Don't have golang installed? Download the executables from [here](https://github
 
 ## How it works?
 
-It uses websockets for server-client communication. The server broadcasts all messages.
+It uses websockets for server-client communication and Sqlite for storing all messages.
 
 ## How can I add more emojis?
 
