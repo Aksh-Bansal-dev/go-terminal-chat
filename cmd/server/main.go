@@ -19,6 +19,7 @@ func main() {
 	hub := websocket.NewHub()
 	db := database.NewDB()
 	go hub.Run(db)
+	http.Handle("/", http.FileServer(http.Dir("./static")))
 	http.HandleFunc("/ws", func(w http.ResponseWriter, r *http.Request) {
 		websocket.ServeWs(hub, w, r)
 	})
