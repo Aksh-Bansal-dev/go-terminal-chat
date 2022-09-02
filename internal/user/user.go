@@ -23,8 +23,8 @@ var (
 	Users chan OnlineUser
 )
 
-func GetInitialUsers(serverAddr string) {
-	u := url.URL{Scheme: "http", Host: serverAddr, Path: "/online-users"}
+func GetInitialUsers(serverAddr string, roomCode string) {
+	u := url.URL{Scheme: "http", Host: serverAddr, Path: fmt.Sprintf("/online-users/%s", roomCode)}
 	res, err := http.Get(u.String())
 	if err != nil {
 		log.Println("error: GetInitialUsers couldn't fetch data")
@@ -45,7 +45,7 @@ func GetInitialUsers(serverAddr string) {
 	}
 }
 
-func IsValidUsername(username string, serverAddr string) error {
+func IsValidUsername(username string, serverAddr string, roomCode string) error {
 	if username == "" {
 		return errors.New("username must not be empty")
 	}
@@ -56,7 +56,7 @@ func IsValidUsername(username string, serverAddr string) error {
 	if serverAddr == "" {
 		return nil
 	}
-	u := url.URL{Scheme: "http", Host: serverAddr, Path: "/valid-username"}
+	u := url.URL{Scheme: "http", Host: serverAddr, Path: fmt.Sprintf("/valid-username/%s", roomCode)}
 	b, _ := json.Marshal(map[string]string{"username": username})
 	res, err := http.Post(u.String(), "application/json", bytes.NewBuffer(b))
 	if err != nil {

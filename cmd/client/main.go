@@ -8,6 +8,7 @@ import (
 	"net/url"
 	"os"
 	"os/signal"
+	"regexp"
 
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/color"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/tui"
@@ -34,8 +35,13 @@ EXAMPLE: ./client -room private
 func main() {
 	flag.Parse()
 	log.SetFlags(log.Lshortfile)
-	if err := user.IsValidUsername(*username, *addr); err != nil {
+	if err := user.IsValidUsername(*username, *addr, *roomCode); err != nil {
 		fmt.Println(err)
+		return
+	}
+	roomCodeR, _ := regexp.Compile("[a-z]{3,6}")
+	if !roomCodeR.MatchString(*roomCode) {
+		fmt.Println("Room code must be 3 to 6 letter string with lowercase alphabets(a-z)")
 		return
 	}
 
@@ -52,7 +58,7 @@ func main() {
 	}
 	defer c.Close()
 
-	user.GetInitialUsers(*addr)
+	user.GetInitialUsers(*addr, *roomCode)
 	done := make(chan struct{})
 	input := make(chan string)
 

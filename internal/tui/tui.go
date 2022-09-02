@@ -99,7 +99,7 @@ func PrintMessage(msg database.Message) {
 		}
 	}
 	name := tui.NewLabel(nameContent)
-	if err := user.IsValidUsername(msg.Username, ""); err != nil {
+	if err := user.IsValidUsername(msg.Username, "", msg.RoomCode); err != nil {
 		name.SetText("")
 	} else if msg.Username == username {
 		name.SetStyleName(fmt.Sprintf("wb-color%d", msg.Color))

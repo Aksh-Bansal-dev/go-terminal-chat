@@ -30,10 +30,10 @@ func main() {
 	r.HandleFunc("/chat/{room}", func(w http.ResponseWriter, r *http.Request) {
 		routes.ChatHandler(w, r, db)
 	})
-	http.HandleFunc("/online-users", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/online-users/{room}", func(w http.ResponseWriter, r *http.Request) {
 		routes.OnlineUserHandler(w, r, hub)
 	})
-	http.HandleFunc("/valid-username", func(w http.ResponseWriter, r *http.Request) {
+	r.HandleFunc("/valid-username/{room}", func(w http.ResponseWriter, r *http.Request) {
 		routes.ValidUsernameHandler(w, r, hub)
 	})
 	http.Handle("/", r)

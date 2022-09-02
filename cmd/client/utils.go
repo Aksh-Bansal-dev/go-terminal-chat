@@ -29,7 +29,7 @@ func printMsg(msg database.Message) {
 	time := color.Grey(msg.Time)
 	if msg.Content == "" {
 		return
-	} else if err := user.IsValidUsername(msg.Username, ""); err != nil {
+	} else if err := user.IsValidUsername(msg.Username, "", *roomCode); err != nil {
 		fmt.Printf("%s %s\n", time, content)
 	} else if msg.Username == *username {
 		fmt.Printf("%s %s: %s\n", time, color.CustomWithBg(nameContent, msg.Color), content)

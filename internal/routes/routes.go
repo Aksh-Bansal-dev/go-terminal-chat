@@ -20,15 +20,18 @@ func OnlineUserHandler(w http.ResponseWriter, r *http.Request, hub *websocket.Hu
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
 	onlineUsers := []user.OnlineUser{}
 	for client := range hub.Clients {
-		onlineUsers = append(
-			onlineUsers,
-			user.OnlineUser{
-				Username: (*client).Username,
-				Color:    (*client).Color,
-			},
-		)
+		if client.RoomCode == vars["room"] {
+			onlineUsers = append(
+				onlineUsers,
+				user.OnlineUser{
+					Username: (*client).Username,
+					Color:    (*client).Color,
+				},
+			)
+		}
 	}
 	jsonRes, err := json.Marshal(onlineUsers)
 	if err != nil {
@@ -43,6 +46,7 @@ func ValidUsernameHandler(w http.ResponseWriter, r *http.Request, hub *websocket
 	}
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
+	vars := mux.Vars(r)
 	body, err := ioutil.ReadAll(r.Body)
 	if err != nil {
 		http.Error(w, "Cannot parse request body", http.StatusBadRequest)
@@ -53,7 +57,7 @@ func ValidUsernameHandler(w http.ResponseWriter, r *http.Request, hub *websocket
 		http.Error(w, "Cannot parse request body", http.StatusBadRequest)
 	}
 	for client := range hub.Clients {
-		if client.Username == data["username"] {
+		if client.RoomCode == vars["room"] && client.Username == data["username"] {
 			res := map[string]bool{"valid": false}
 			jsonRes, _ := json.Marshal(res)
 			w.Write([]byte(jsonRes))
@@ -74,11 +78,9 @@ func ChatHandler(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	w.Header().Set("Content-Type", "application/json")
 
 	vars := mux.Vars(r)
-	log.Println(vars["room"])
 
 	var chat []database.Message
-	db.Where("room-code = ?", vars["room"]).Find(&chat)
-	log.Println(chat)
+	db.Where(&database.Message{RoomCode: vars["room"]}).Find(&chat)
 
 	jsonRes, _ := json.Marshal(chat)
 	w.Write([]byte(jsonRes))
