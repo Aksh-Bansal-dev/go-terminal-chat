@@ -16,11 +16,19 @@ import (
 )
 
 var (
-	addr     = flag.String("addr", "localhost:8080", "http service address")
-	username = flag.String("user", "Newbie", "username for chat")
-	tuiMode  = flag.Bool("tui", false, "Use this app in tui mode")
-	roomCode = flag.String("room", "general", "Specify room code")
-	myColor  int
+	addr = flag.String("addr", "localhost:8080", `http service address
+EXAMPLE: ./client -addr localhost:5000	
+	`)
+	username = flag.String("user", "Newbie", `username for chat
+EXAMPLE: ./client -user aksh	
+	`)
+	tuiMode = flag.Bool("tui", false, `Use this app in tui mode
+EXAMPLE: ./client -tui	
+	`)
+	roomCode = flag.String("room", "general", `Specify room code
+EXAMPLE: ./client -room private	
+	`)
+	myColor int
 )
 
 func main() {

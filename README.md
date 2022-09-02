@@ -13,7 +13,7 @@ An awesome terminal chat application built using Golang.
 ## How to use?
 
 - Start the server using `go run cmd/server/main.go [-addr]`
-- Start the client using `go run cmd/client/main.go [-addr] [-user] [-tui]`
+- Start the client using `go run cmd/client/main.go [-addr] [-user] [-tui] [-room]`
 
 Don't have golang installed? Download the executables from [here](https://github.com/Aksh-Bansal-dev/go-terminal-chat/releases/tag/v1.0.0).
 
