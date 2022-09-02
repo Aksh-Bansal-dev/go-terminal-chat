@@ -45,9 +45,9 @@ func sendAnnouncement(
 ) error {
 	var newMsg database.Message
 	if announcementType == "joined" {
-		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " y"+username, myColor)
+		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " y"+username, myColor, *roomCode)
 	} else if announcementType == "left" {
-		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " x"+username, myColor)
+		newMsg = tui.NewMessage(username+" "+announcementType+" the chat!", " x"+username, myColor, *roomCode)
 	}
 	postBody, _ := json.Marshal(newMsg)
 	err := writeMessage(websocket.TextMessage, []byte(postBody))
@@ -55,7 +55,7 @@ func sendAnnouncement(
 }
 
 func sendMsg(content string, writeMessage func(messageType int, data []byte) error) error {
-	newMsg := tui.NewMessage(content, *username, myColor)
+	newMsg := tui.NewMessage(content, *username, myColor, *roomCode)
 	to, actualContent := inputParser(content)
 	newMsg.To = to
 	newMsg.Content = actualContent

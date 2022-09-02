@@ -47,7 +47,10 @@ func (h *Hub) Run(db *gorm.DB) {
 			_ = json.Unmarshal(message, &msg)
 			db.Create(&msg)
 			for client := range h.Clients {
-				if msg.To == "" || msg.To == client.Username || msg.Username == client.Username {
+				if (msg.To == "" ||
+					msg.To == client.Username ||
+					msg.Username == client.Username) &&
+					client.RoomCode == msg.RoomCode {
 					select {
 					case client.send <- message:
 					default:

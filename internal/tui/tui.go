@@ -120,7 +120,7 @@ func PrintMessage(msg database.Message) {
 	}
 }
 
-func NewMessage(content string, customUserName string, color int) database.Message {
+func NewMessage(content string, customUserName string, color int, roomCode string) database.Message {
 	t := time.Now()
 	return database.Message{
 		Username: customUserName,
@@ -128,6 +128,7 @@ func NewMessage(content string, customUserName string, color int) database.Messa
 		Color:    color,
 		Time:     fmt.Sprintf("%d:%d:%d", t.Hour(), t.Minute(), t.Second()),
 		To:       "",
+		RoomCode: roomCode,
 	}
 }
 

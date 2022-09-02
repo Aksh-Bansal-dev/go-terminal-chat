@@ -12,6 +12,7 @@ type Message struct {
 	Time     string
 	Color    int
 	To       string
+	RoomCode string `gorm:"column: room-code"`
 }
 
 func NewDB() *gorm.DB {

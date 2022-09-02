@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"errors"
+	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
@@ -76,8 +77,8 @@ func IsValidUsername(username string, serverAddr string) error {
 	}
 }
 
-func GetChat(serverAddr string) []database.Message {
-	u := url.URL{Scheme: "http", Host: serverAddr, Path: "/chat"}
+func GetChat(serverAddr string, roomCode string) []database.Message {
+	u := url.URL{Scheme: "http", Host: serverAddr, Path: fmt.Sprintf("/chat/%s", roomCode)}
 	res, err := http.Get(u.String())
 	if err != nil {
 		log.Println("error: isValidUsername couldn't fetch data")

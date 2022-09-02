@@ -47,6 +47,7 @@ type Client struct {
 
 	Username string
 	Color    int
+	RoomCode string
 }
 
 // readPump pumps messages from the websocket connection to the hub.
@@ -75,6 +76,7 @@ func (c *Client) readPump() {
 		if msg.Username[0] == ' ' {
 			c.Username = msg.Username[2:]
 			c.Color = msg.Color
+			c.RoomCode = msg.RoomCode
 		}
 		if err != nil {
 			if websocket.IsUnexpectedCloseError(err, websocket.CloseGoingAway, websocket.CloseAbnormalClosure) {

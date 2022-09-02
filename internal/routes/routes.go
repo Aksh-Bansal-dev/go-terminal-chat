@@ -9,6 +9,7 @@ import (
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/database"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/user"
 	"github.com/Aksh-Bansal-dev/go-terminal-chat/internal/websocket"
+	"github.com/gorilla/mux"
 	"gorm.io/gorm"
 )
 
@@ -72,8 +73,12 @@ func ChatHandler(w http.ResponseWriter, r *http.Request, db *gorm.DB) {
 	w.Header().Set("Access-Control-Allow-Origin", "*")
 	w.Header().Set("Content-Type", "application/json")
 
+	vars := mux.Vars(r)
+	log.Println(vars["room"])
+
 	var chat []database.Message
-	db.Find(&chat)
+	db.Where("room-code = ?", vars["room"]).Find(&chat)
+	log.Println(chat)
 
 	jsonRes, _ := json.Marshal(chat)
 	w.Write([]byte(jsonRes))

@@ -19,6 +19,7 @@ var (
 	addr     = flag.String("addr", "localhost:8080", "http service address")
 	username = flag.String("user", "Newbie", "username for chat")
 	tuiMode  = flag.Bool("tui", false, "Use this app in tui mode")
+	roomCode = flag.String("room", "general", "Specify room code")
 	myColor  int
 )
 
@@ -49,11 +50,11 @@ func main() {
 
 	if *tuiMode {
 		go tui.Run(*username, &input, *addr)
-		for _, msg := range user.GetChat(*addr) {
+		for _, msg := range user.GetChat(*addr, *roomCode) {
 			tui.PrintMessage(msg)
 		}
 	} else {
-		for _, msg := range user.GetChat(*addr) {
+		for _, msg := range user.GetChat(*addr, *roomCode) {
 			printMsg(msg)
 		}
 	}
